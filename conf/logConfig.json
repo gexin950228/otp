@@ -1,0 +1,5 @@
+{
+  "logPath": "logs",
+  "logName": "gin_project.log",
+  "logLevel": "info"
+}
