@@ -1,5 +1,5 @@
 {
   "logPath": "logs",
-  "logName": "gin_project.log",
+  "logName": "opt.log",
   "logLevel": "info"
 }

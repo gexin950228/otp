@@ -10,6 +10,7 @@ import (
 var Log = logrus.New()
 
 func init() {
+
 	logConfig := LoadConfig()
 	logPath := logConfig.LogPath
 	logName := logConfig.LogName
