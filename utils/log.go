@@ -1,9 +1,35 @@
 package utils
 
 import (
+	"encoding/json"
+	"io"
 	"os"
 	"time"
 )
+
+type LogConfig struct {
+	LogPath  string `json:"logPath"`
+	LogLevel string `json:"logLevel"`
+	LogName  string `json:"logName"`
+}
+
+func LoadConfig() *LogConfig {
+	LogConfig := LogConfig{}
+	file, err := os.Open("conf/logConfig.json")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	byteData, errRead := io.ReadAll(file)
+	if errRead != nil {
+		return nil
+	}
+	errUnmarshalLogConfig := json.Unmarshal(byteData, &LogConfig)
+	if errUnmarshalLogConfig != nil {
+		return nil
+	}
+	return &LogConfig
+}
 
 func WriteLog(logSubject string, logContent string) {
 	timeNow := time.Now().Format("2006-01-03 15:04:05")
