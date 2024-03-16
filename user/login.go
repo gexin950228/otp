@@ -13,9 +13,12 @@ import (
 	"otp/dataSource"
 	"otp/logSource"
 	"otp/models"
+	"otp/sessionInit"
 	"strconv"
 	"time"
 )
+
+var session = sessionInit.InitSession()
 
 func PreLogin(ctx *gin.Context) {
 	var user models.UserInfo
@@ -74,11 +77,13 @@ func Login(ctx *gin.Context) {
 		err := session.Save()
 		if err != nil {
 			logrus.Warn(fmt.Sprintf("%s登录设置session失败，%s", username, err.Error()))
+		} else {
+			ctx.JSON(http.StatusOK, gin.H{
+				"code": 1,
+				"msg":  "登陆成功",
+			})
 		}
-		ctx.JSON(http.StatusOK, gin.H{
-			"code": 1,
-			"msg":  "登陆成功",
-		})
+
 	} else {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": 2,

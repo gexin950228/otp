@@ -3,10 +3,9 @@ package SendMail
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io"
 	"os"
-	"otp/logSource"
-	"otp/utils"
 )
 
 type MailMsg struct {
@@ -21,21 +20,21 @@ func LoadMailConfig(filename string) MailMsg {
 	mailMsg := MailMsg{}
 	file, errOpenFile := os.Open(filename)
 	if errOpenFile != nil {
-		logSource.Log.Error(fmt.Sprintf("加载配置出错： %s"), errOpenFile.Error())
+		logrus.Error(fmt.Sprintf("加载配置出错： %s"), errOpenFile.Error())
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			utils.WriteLog("加载配置文件出错", err.Error())
+			logrus.Error(fmt.Sprintf("加载配置文件出错， %s", err.Error()))
 		}
 	}(file)
 	byteDate, errReadBytes := io.ReadAll(file)
 	if errReadBytes != nil {
-		utils.WriteLog("加载配置文件出错", errReadBytes.Error())
+		logrus.Error(fmt.Sprintf("加载配置文件出错, %s", errReadBytes.Error()))
 	}
 	errUnmarshal := json.Unmarshal(byteDate, &mailMsg)
 	if errUnmarshal != nil {
-		utils.WriteLog("写入日志出错", errUnmarshal.Error())
+		logrus.Error(fmt.Sprintf("写入日志出错, %s", errUnmarshal.Error()))
 	}
 	return mailMsg
 }

@@ -10,16 +10,6 @@ import (
 	"time"
 )
 
-func Hello(ctx *gin.Context) {
-	ctx.String(http.StatusOK, "Success!")
-}
-
-func setupRouter() *gin.Engine {
-	r := gin.Default()
-	r.GET("/ping", Hello)
-	return r
-}
-
 func main() {
 	engine := gin.Default()
 	router.Router(engine)
@@ -36,4 +26,5 @@ func main() {
 		logSource.Log.Panic(err.Error())
 		return
 	}
+
 }

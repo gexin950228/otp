@@ -3,9 +3,12 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"otp/responseHandler"
+	"otp/user"
 )
 
 func Router(router *gin.Engine) {
-	response := router.Group("/responseHandler")
-	responseHandler.Router(response)
+	crudRouter := router.Group("/response")
+	userRouter := router.Group("/user")
+	responseHandler.Router(crudRouter)
+	user.Router(userRouter)
 }
