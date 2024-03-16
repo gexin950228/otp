@@ -5,10 +5,12 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"otp/logSource"
+	"otp/utils"
 )
 
 func InitSession() sessions.Store {
-	sessionStore, errInitSession := redis.NewStore(10, "tcp", "localhost:6379", "Gexin..950228", []byte("secret"))
+	redisConf := utils.LoadRedisConfig()
+	sessionStore, errInitSession := redis.NewStore(redisConf.ConnNum, "tcp", redisConf.Address, redisConf.Password, []byte("secret"))
 	if errInitSession != nil {
 		logSource.Log.Panic(errInitSession.Error())
 		fmt.Println(errInitSession.Error())

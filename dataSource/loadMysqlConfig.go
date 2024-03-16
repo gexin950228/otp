@@ -7,6 +7,13 @@ import (
 	"os"
 )
 
+var mysqlConfigPath string
+
+func Initialize(param string) {
+	mysqlConfigPath = param
+
+}
+
 type MysqlConfig struct {
 	Host     string `json:"host"`
 	Port     string `json:"port"`
@@ -22,7 +29,12 @@ func LoadMysqlConfig() *MysqlConfig {
 	if errOpenMysqlConfig != nil {
 		logrus.Panic(errOpenMysqlConfig.Error())
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 	byteData, errReadFile := io.ReadAll(file)
 	if errReadFile != nil {
 		logrus.Fatal(errReadFile.Error())

@@ -9,10 +9,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"math/rand"
 	"net/http"
-	"otp/SendMail"
 	"otp/dataSource"
 	"otp/logSource"
 	"otp/models"
+	"otp/sendMail"
 	"otp/sessionInit"
 	"strconv"
 	"time"
@@ -34,7 +34,7 @@ func PreLogin(ctx *gin.Context) {
 	to := user.Email
 	Subject := "查询机器密码的登录验证码"
 	userId := user.Id
-	SendMail.SendEmail(userId, Subject, body, to)
+	sendMail.SendEmail(userId, Subject, body, to)
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "Gexin..950228",

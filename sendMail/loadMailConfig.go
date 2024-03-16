@@ -1,4 +1,4 @@
-package SendMail
+package sendMail
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ func LoadMailConfig(filename string) MailMsg {
 	mailMsg := MailMsg{}
 	file, errOpenFile := os.Open(filename)
 	if errOpenFile != nil {
-		logrus.Error(fmt.Sprintf("加载配置出错： %s"), errOpenFile.Error())
+		logrus.Error(fmt.Sprintf("加载配置出错： %s", errOpenFile.Error()))
 	}
 	defer func(file *os.File) {
 		err := file.Close()
