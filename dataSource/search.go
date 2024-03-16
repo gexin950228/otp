@@ -13,11 +13,6 @@ type VerifyResult struct {
 	Msg  string
 }
 
-func SearchByIp(ip string) (machine models.Machine) {
-	Db.First(&machine).Where("ip=?", ip)
-	return machine
-}
-
 func SearchUser(id int, username string, password string, verifyCode string) VerifyResult {
 	var loginInfo models.UserLogin
 	Db.First(&loginInfo).Where("id=?", loginInfo.Id)

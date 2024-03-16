@@ -67,10 +67,12 @@ func Login(ctx *gin.Context) {
 	verifyCode := userLogin.VerifyCode
 	password := userLogin.Password
 	username := userLogin.UserName
+	store := sessionInit.InitSession()
+	sessions.Sessions("loginSession", store)
 	verifyResult := dataSource.SearchUser(id, username, password, verifyCode)
 	if verifyResult.Code == 1 {
 		session := sessions.Default(ctx)
-		session.Set(username, "success")
+		session.Set(username, "Success")
 		session.Options(sessions.Options{
 			MaxAge: int(24 * time.Hour),
 		})
@@ -78,10 +80,8 @@ func Login(ctx *gin.Context) {
 		if err != nil {
 			logrus.Warn(fmt.Sprintf("%s登录设置session失败，%s", username, err.Error()))
 		} else {
-			ctx.JSON(http.StatusOK, gin.H{
-				"code": 1,
-				"msg":  "登陆成功",
-			})
+			session.Set(username, "Success")
+			ctx.Redirect(http.StatusOK, "/response/show")
 		}
 
 	} else {

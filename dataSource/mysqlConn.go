@@ -11,7 +11,7 @@ import (
 var Db *gorm.DB
 var err error
 
-func init() {
+func InitDb() *gorm.DB {
 	dataSource := LoadMysqlConfig()
 	host := dataSource.Host
 	port := dataSource.Port
@@ -25,9 +25,10 @@ func init() {
 	Db.LogMode(logMode)
 	if err != nil {
 		logrus.Error(err.Error())
-		return
+		return nil
 	}
 	logSource.Log.Info("数据库初始化成功！")
 	Db.DB().SetMaxOpenConns(100)
 	Db.DB().SetMaxIdleConns(10)
+	return Db
 }
