@@ -20,7 +20,7 @@ import (
 
 var session = sessionInit.InitSession()
 
-func PreLogin(ctx *gin.Context) {
+func SendLoginVerifyCode(ctx *gin.Context) {
 	var user models.UserInfo
 	err := ctx.ShouldBind(&user)
 	if err != nil {
@@ -32,7 +32,7 @@ func PreLogin(ctx *gin.Context) {
 	randomNumber := rng.Intn(1000000)
 	body := fmt.Sprintf("您此次登陆的验证码是：%s\n", strconv.Itoa(randomNumber))
 	to := user.Email
-	Subject := "查询机器密码的登录验证码"
+	Subject := "登录验证码"
 	userId := user.Id
 	sendMail.SendEmail(userId, Subject, body, to)
 	rdb := redis.NewClient(&redis.Options{
@@ -46,6 +46,10 @@ func PreLogin(ctx *gin.Context) {
 	if errSaveVerifyCodeToRedis != nil {
 		logSource.Log.Error(errSaveVerifyCodeToRedis.Error())
 	}
+}
+
+func ToLogin(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "templates/login.html", nil)
 }
 
 func Login(ctx *gin.Context) {
