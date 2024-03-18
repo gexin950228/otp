@@ -21,12 +21,8 @@ import (
 var session = sessionInit.InitSession()
 
 func SendLoginVerifyCode(ctx *gin.Context) {
-	var user models.UserInfo
-	err := ctx.ShouldBind(&user)
-	if err != nil {
-		logSource.Log.Error("发送邮箱验证码时登录信息绑定错误")
-		return
-	}
+	username := ctx.PostForm("username")
+	user := dataSource.GetUserInfoByUserName(username)
 	seed := time.Now().UnixNano()
 	rng := rand.New(rand.NewSource(seed))
 	randomNumber := rng.Intn(1000000)
@@ -49,6 +45,7 @@ func SendLoginVerifyCode(ctx *gin.Context) {
 }
 
 func ToLogin(ctx *gin.Context) {
+
 	ctx.HTML(http.StatusOK, "templates/login.html", nil)
 }
 

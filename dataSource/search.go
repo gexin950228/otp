@@ -13,6 +13,12 @@ type VerifyResult struct {
 	Msg  string
 }
 
+func GetUserInfoByUserName(username string) models.UserInfo {
+	var user models.UserInfo
+	Db.First(&user).Where("username=?", username)
+	return user
+}
+
 func SearchUser(id int, username string, password string, verifyCode string) VerifyResult {
 	var loginInfo models.UserLogin
 	Db.First(&loginInfo).Where("id=?", loginInfo.Id)

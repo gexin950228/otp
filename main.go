@@ -12,6 +12,8 @@ import (
 
 func main() {
 	engine := gin.Default()
+	engine.LoadHTMLGlob("template/**/*")
+	engine.Static("/static", "static")
 	router.Router(engine)
 	s := &http.Server{
 		Addr:              ":8080",
