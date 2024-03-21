@@ -15,6 +15,8 @@
 </form>
 
 <script>
+    let sourceUri = '{{.sourceUri}}'
+    console.log(sourceUri)
     let getVerifyCode = document.getElementById("getVerifyCode").value;
     getVerifyCode.onclick = function () {
         let username = document.getElementById("username").value;
@@ -30,7 +32,8 @@
                 "username": username,
             },
             success: function (data) {
-
+                console.log(data["code"])
+                console.log(data["msg"])
             },
             fail: function (data) {
 
@@ -48,6 +51,7 @@
                     "username": username,
                     "password": password,
                     "verifyCode": verifyCode,
+                    "sourceUri": sourceUri,
                 },
                 success () {},
                 fail () {},

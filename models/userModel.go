@@ -12,4 +12,5 @@ type UserLogin struct {
 	UserName   string `form:"username" json:"userName" gorm:"username"`
 	Password   string `form:"password" json:"password" gorm:"password"`
 	VerifyCode string `form:"verifyCode" json:"verifyCode" gorm:"verifyCode"`
+	SourceUri  string `form:"sourceUri" json:"sourceUri" gorm:"sourceUri"`
 }

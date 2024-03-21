@@ -45,12 +45,15 @@ func SendLoginVerifyCode(ctx *gin.Context) {
 }
 
 func ToLogin(ctx *gin.Context) {
-
-	ctx.HTML(http.StatusOK, "templates/login.html", nil)
+	redirectUri := ctx.Param("uri")
+	ctx.HTML(http.StatusOK, "templates/login.html", gin.H{"Uri": redirectUri})
 }
 
 func Login(ctx *gin.Context) {
 	var userLogin models.UserLogin
+	userLogin.UserName = ctx.PostForm("username")
+	userLogin.Password = ctx.PostForm("password")
+	userLogin.SourceUri = ctx.PostForm("redirectUri")
 	err := ctx.ShouldBind(&userLogin)
 	if err != nil {
 		logSource.Log.Error("登录信息绑定错误")
