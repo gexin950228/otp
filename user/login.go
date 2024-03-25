@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -45,11 +46,16 @@ func SendLoginVerifyCode(ctx *gin.Context) {
 }
 
 func ToLogin(ctx *gin.Context) {
-	redirectUri := ctx.Param("uri")
+	redirectUri := ctx.Query("uri")
 	ctx.HTML(http.StatusOK, "templates/login.html", gin.H{"Uri": redirectUri})
 }
 
+func TokenHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func Login(ctx *gin.Context) {
+	uri, _ := ctx.GetPostForm("uri")
 	var userLogin models.UserLogin
 	userLogin.UserName = ctx.PostForm("username")
 	userLogin.Password = ctx.PostForm("password")
@@ -85,13 +91,14 @@ func Login(ctx *gin.Context) {
 			logrus.Warn(fmt.Sprintf("%s登录设置session失败，%s", username, err.Error()))
 		} else {
 			session.Set(username, "Success")
-			ctx.Redirect(http.StatusOK, "/response/show")
+			ctx.Redirect(http.StatusOK, uri)
 		}
+		token := jwt.New(jwt.SigningMethodES256)
+		claims := token.Claims.(jwt.MapClaims)
+		claims["username"] = username
 
 	} else {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code": 2,
-			"msg":  verifyResult.Msg,
-		})
+		redirectUri := "/response/show/?id=" + username
+		ctx.Redirect(http.StatusOK, redirectUri)
 	}
 }

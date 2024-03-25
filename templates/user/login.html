@@ -10,54 +10,57 @@
 <form action="/user/login">
     <input type="text" placeholder="请输入用户名" name="username" id="username"> <br>
     <input type="password" placeholder="请输入密码" id="password" name="password"> <br>
-    <input type="text" placeholder="请输入验证码" id="verifyCode" name="verifyCode"> <input type="button" placeholder="点击获取验证码" id="getVerifyCode"> <br>
+    <input type="text" placeholder="请输入验证码" id="verifyCode" name="verifyCode"> <input type="button" value="获取验证码" id="getVerifyCode" style="background-color: aliceblue"> <br>
     <input type="button" value="登录" id="login" name="login">
 </form>
 
 <script>
-    let sourceUri = '{{.sourceUri}}'
+    // let sourceUri = "https://www.baidu.com"
+    let sourceUri = '{{.uri}}'
     console.log(sourceUri)
-    let getVerifyCode = document.getElementById("getVerifyCode").value;
-    getVerifyCode.onclick = function () {
+    let btnGetVerifyCode = document.getElementById("getVerifyCode");
+    btnGetVerifyCode.onclick = function () {
         let username = document.getElementById("username").value;
-        $(this).attr('disabled', true);
-        $(this).css('backgroud-color', 'grey');
-        setTimeout(function () {
-            $('#getVerifyCode').removeAttr('disabled')
-        }, 60000);
-        $ajax({
+        $(this).style.background = "black";
+        $(this).disable = true;
+        setTimeout(() => {
+            btnGetVerifyCode.disabled = false;
+            btnGetVerifyCode.style.background = "aliceblue"
+        }, 60000)
+        $.ajax({
             url: "/user/preLogin",
             type: "POST",
             data: {
                 "username": username,
             },
             success: function (data) {
-                console.log(data["code"])
                 console.log(data["msg"])
             },
             fail: function (data) {
+                console.log(data["msg"])
+            }
+        })
+    }
+    let btnLogin = document.getElementById("login");
+    let username = document.getElementById("username");
+    let password = document.getElementById("password");
+    let verifyCode = document.getElementById("verifyCode");
+    btnLogin.onclick = function () {
+        $.ajax({
+            url: "/user/login",
+            data: {
+                "username": username,
+                "password": password,
+                "verifyCode": verifyCode,
 
             },
-        });
-        let loginBtn = document.getElementById("login")
-        loginBtn.onclick = function () {
-            let username = document.getElementById("username").value;
-            let password = document.getElementById("password").value;
-            let verifyCode = document.getElementById("verifyCode").value;
-            $ajax({
-                url: "/user/login",
-                type: "POST",
-                data: {
-                    "username": username,
-                    "password": password,
-                    "verifyCode": verifyCode,
-                    "sourceUri": sourceUri,
-                },
-                success () {},
-                fail () {},
-            });
-        }
-
+            success: function (data) {
+                console.log(data["msg"])
+            },
+            fail: function (data) {
+                console.log(data["msg"])
+            }
+        })
     }
 </script>
 </body>

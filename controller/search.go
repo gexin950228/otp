@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,12 +11,14 @@ import (
 )
 
 func Show(ctx *gin.Context) {
+	userId := ctx.Query("id")
 	var machines []models.Machine
+	fmt.Println(userId)
 	ctx.HTML(http.StatusOK, "template/show.html", machines)
 }
 
 func Search(ctx *gin.Context) {
-	user := ctx.PostForm("user")
+	user := ctx.PostForm("username")
 	store := sessionInit.InitSession()
 	session := sessions.Default(ctx)
 	sessions.Sessions("loginSession", store)
