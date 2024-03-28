@@ -13,7 +13,7 @@ type SendMail struct {
 
 func SendEmail(userId int, Subject string, body string, to string) (status SendMail) {
 	msg := gomail.NewMessage()
-	mailMsg := LoadMailConfig("../conf/mail.json")
+	mailMsg := LoadMailConfig("conf/mail.json")
 	msg.SetHeader("Subject", Subject)
 	msg.SetHeader("From", mailMsg.From)
 	msg.SetHeader("To", to)

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>登陆页面</title>
-    <script src="static/js/jquery.js"></script>
+    <script src="/static/js/jquery.js"></script>
 </head>
 <body>
 <form action="/user/login">
@@ -21,12 +21,6 @@
     let btnGetVerifyCode = document.getElementById("getVerifyCode");
     btnGetVerifyCode.onclick = function () {
         let username = document.getElementById("username").value;
-        $(this).style.background = "black";
-        $(this).disable = true;
-        setTimeout(() => {
-            btnGetVerifyCode.disabled = false;
-            btnGetVerifyCode.style.background = "aliceblue"
-        }, 60000)
         $.ajax({
             url: "/user/preLogin",
             type: "POST",
@@ -42,11 +36,13 @@
         })
     }
     let btnLogin = document.getElementById("login");
-    let username = document.getElementById("username");
-    let password = document.getElementById("password");
-    let verifyCode = document.getElementById("verifyCode");
     btnLogin.onclick = function () {
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        let verifyCode = document.getElementById("verifyCode").value;
+        console.log(username, password, verifyCode)
         $.ajax({
+            type: "POST",
             url: "/user/login",
             data: {
                 "username": username,

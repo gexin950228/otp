@@ -2,10 +2,10 @@ package dataSource
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
+	"fmt"
 	"otp/logSource"
 	"otp/models"
-	"strconv"
+	"github.com/go-redis/redis/v8"
 )
 
 type VerifyResult struct {
@@ -21,8 +21,9 @@ func GetUserInfoByUserName(username string) models.UserInfo {
 
 func SearchUser(id int, username string, password string, verifyCode string) VerifyResult {
 	var loginInfo models.UserLogin
-	Db.First(&loginInfo).Where("id=?", loginInfo.Id)
-	key := strconv.FormatInt(int64(loginInfo.Id), 64) + "-" + "loginVerifyCode"
+	Db.First(&loginInfo).Where("username=?", username)
+	key := username + "-" + "loginVerifyCode"
+	fmt.Println(key)
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "Gexin..950228",
@@ -30,13 +31,14 @@ func SearchUser(id int, username string, password string, verifyCode string) Ver
 	})
 	var verifyResult VerifyResult
 	result, err := rdb.Get(context.Background(), key).Result()
+	fmt.Println(result)
 	if err != nil {
 		logSource.Log.Error("登录校验出错，查询校验码出错")
 		verifyResult.Code = 2
 		verifyResult.Msg = "查询校验码出粗"
 
 	} else {
-		if id == loginInfo.Id && username == loginInfo.UserName && password == loginInfo.Password && verifyCode == result {
+		if id == loginInfo.Id && username == username && password == password && verifyCode == result {
 			verifyResult.Code = 1
 			verifyResult.Msg = "校验成功"
 		} else {

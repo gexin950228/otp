@@ -6,7 +6,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
-	"github.com/sirupsen/logrus"
 	"math/rand"
 	"net/http"
 	"otp/dataSource"
@@ -17,8 +16,6 @@ import (
 	"strconv"
 	"time"
 )
-
-var session = sessionInit.InitSession()
 
 func SendLoginVerifyCode(ctx *gin.Context) {
 	username := ctx.PostForm("username")
@@ -36,21 +33,19 @@ func SendLoginVerifyCode(ctx *gin.Context) {
 		Password: "Gexin..950228",
 		DB:       0,
 	})
-	key := strconv.FormatInt(int64(user.Id), 64) + "-" + "loginVerifyCode"
-	value := strconv.FormatInt(int64(randomNumber), 64)
-	errSaveVerifyCodeToRedis := rdb.Set(context.Background(), key, value, 120).Err()
+	key := user.UserName + "-" + "loginVerifyCode"
+	value := strconv.Itoa(randomNumber)
+	errSaveVerifyCodeToRedis := rdb.Set(context.Background(), key, value, time.Hour*24).Err()
 	if errSaveVerifyCodeToRedis != nil {
 		logSource.Log.Error(errSaveVerifyCodeToRedis.Error())
 	}
 }
 
 func ToLogin(ctx *gin.Context) {
-	redirectUri := ctx.Query("uri")
-	ctx.HTML(http.StatusOK, "templates/login.html", gin.H{"Uri": redirectUri})
+	ctx.HTML(http.StatusOK, "user/login.html", nil)
 }
 
 func Login(ctx *gin.Context) {
-	uri, _ := ctx.GetPostForm("uri")
 	var userLogin models.UserLogin
 	userLogin.UserName = ctx.PostForm("username")
 	userLogin.Password = ctx.PostForm("password")
@@ -76,22 +71,14 @@ func Login(ctx *gin.Context) {
 	sessions.Sessions("loginSession", store)
 	verifyResult := dataSource.SearchUser(id, username, password, verifyCode)
 	if verifyResult.Code == 1 {
-		session := sessions.Default(ctx)
-		session.Set(username, "Success")
-		session.Options(sessions.Options{
-			MaxAge: int(24 * time.Hour),
-		})
-		err := session.Save()
-		if err != nil {
-			logrus.Warn(fmt.Sprintf("%s登录设置session失败，%s", username, err.Error()))
-		} else {
-			session.Set(username, "Success")
-			TokenHandler(username, ctx.Writer, ctx.Request)
-			ctx.Redirect(http.StatusOK, uri)
-		}
-
+			ctx.JSON(http.StatusOK, gin.H{
+				"code": "1",
+				"msg": "Success",
+			})
 	} else {
-		redirectUri := "/response/show/?id=" + username
-		ctx.Redirect(http.StatusOK, redirectUri)
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"msg": "登录验证失败",
+			"code": 2,
+		})
 	}
 }
