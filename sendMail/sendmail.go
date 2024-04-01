@@ -1,6 +1,7 @@
 package sendMail
 
 import (
+	"crypto/tls"
 	"fmt"
 	"gopkg.in/gomail.v2"
 	"otp/logSource"
@@ -11,14 +12,15 @@ type SendMail struct {
 	Msg  string
 }
 
-func SendEmail(userId int, Subject string, body string, to string) (status SendMail) {
+func SendEmail(Subject string, body string, to string) (status SendMail) {
 	msg := gomail.NewMessage()
-	mailMsg := LoadMailConfig("../conf/mail.json")
+	mailMsg := LoadMailConfig("conf/mail.json")
 	msg.SetHeader("Subject", Subject)
 	msg.SetHeader("From", mailMsg.From)
 	msg.SetHeader("To", to)
 	msg.SetBody("text/html", body)
 	n := gomail.NewDialer(mailMsg.Server, mailMsg.Port, mailMsg.User, mailMsg.Password)
+	n.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	if err := n.DialAndSend(msg); err != nil {
 		logSource.Log.Error(err.Error())
 		status.Code = 2

@@ -1,4 +1,4 @@
-{{ define "/response/show.html" }}
+{{ define "response/show.html" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +6,16 @@
     <title>机器列表</title>
 </head>
 <body>
+<div class="right-top">欢迎： {{.}}</div>
 <h1>机器列表</h1>
 
 </body>
+<style>
+    .right-top {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+</style>
 </html>
 {{ end }}

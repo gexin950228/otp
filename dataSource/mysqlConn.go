@@ -6,6 +6,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sirupsen/logrus"
 	"otp/logSource"
+	"otp/models"
 )
 
 var Db *gorm.DB
@@ -30,6 +31,6 @@ func InitDb() *gorm.DB {
 	logSource.Log.Info("数据库初始化成功！")
 	Db.DB().SetMaxOpenConns(100)
 	Db.DB().SetMaxIdleConns(10)
-	//Db.AutoMigrate(&models.Department{}, &models.Machine{}, &models.VPNInfo{})
+	Db.AutoMigrate(&models.VPNInfo{}, &models.UserInfo{}, &models.UserLogin{}, &models.Machine{}, &models.VPNInfo{})
 	return Db
 }

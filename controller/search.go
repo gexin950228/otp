@@ -2,41 +2,22 @@ package controller
 
 import (
 	"fmt"
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"otp/dataSource"
-	"otp/models"
-	"otp/sessionInit"
 )
 
 func Show(ctx *gin.Context) {
-	userId := ctx.Query("id")
-	var machines []models.Machine
-	fmt.Println(userId)
-	ctx.HTML(http.StatusOK, "template/show.html", machines)
+	Authorization := ctx.Request.Header.Get("Authorization")
+	if Authorization == "" {
+		ctx.Redirect(http.StatusMovedPermanently, "http://127.0.0.1:8080/user/to_login?uri=/response/show")
+	} else {
+		ctx.HTML(http.StatusOK, "response/show.html", nil)
+	}
+
 }
 
 func Search(ctx *gin.Context) {
-	user := ctx.PostForm("username")
-	store := sessionInit.InitSession()
-	session := sessions.Default(ctx)
-	sessions.Sessions("loginSession", store)
-
-	loginStatus := session.Get(user)
-	if loginStatus != "Success" {
-		ctx.Redirect(http.StatusUnauthorized, "/user/login")
-	}
-	ip := ctx.PostForm("ip")
-	department := ctx.PostForm("department")
-	machineInfo := dataSource.SearchMachine(department, ip)
-	if len(machineInfo) != 0 {
-		ctx.JSON(http.StatusOK, gin.H{
-			"code": 2,
-			"msg":  "没找到对应机器，请核对输入是否正确",
-		})
-	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code": 1,
-	})
+	username := ctx.Param("username")
+	fmt.Println(username)
+	ctx.HTML(http.StatusOK, "response/show.html", username)
 }

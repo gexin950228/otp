@@ -36,5 +36,6 @@ func LoadMailConfig(filename string) MailMsg {
 	if errUnmarshal != nil {
 		logrus.Error(fmt.Sprintf("写入日志出错, %s", errUnmarshal.Error()))
 	}
+	fmt.Println(mailMsg)
 	return mailMsg
 }

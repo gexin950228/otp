@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>登陆页面</title>
-    <script src="static/js/jquery.js"></script>
+    <script src="/static/js/jquery.js"></script>
 </head>
 <body>
 <form action="/user/login">
@@ -15,20 +15,19 @@
 </form>
 
 <script>
-    // let sourceUri = "https://www.baidu.com"
-    let sourceUri = '{{.uri}}'
-    console.log(sourceUri)
+
     let btnGetVerifyCode = document.getElementById("getVerifyCode");
     btnGetVerifyCode.onclick = function () {
+        alert("获取验证码成功")
         let username = document.getElementById("username").value;
-        $(this).style.background = "black";
         $(this).disable = true;
         setTimeout(() => {
             btnGetVerifyCode.disabled = false;
             btnGetVerifyCode.style.background = "aliceblue"
         }, 60000)
+        console.log(username, password, verifyCode)
         $.ajax({
-            url: "/user/preLogin",
+            url: "/user/preLogin/",
             type: "POST",
             data: {
                 "username": username,
@@ -42,23 +41,28 @@
         })
     }
     let btnLogin = document.getElementById("login");
-    let username = document.getElementById("username");
-    let password = document.getElementById("password");
-    let verifyCode = document.getElementById("verifyCode");
     btnLogin.onclick = function () {
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        let verifyCode = document.getElementById("verifyCode").value;
+        console.log(username, password, verifyCode);
         $.ajax({
-            url: "/user/login",
+            url: "/user/login/",
+            type: "POST",
             data: {
                 "username": username,
                 "password": password,
-                "verifyCode": verifyCode,
+                "verifyCode": verifyCode
 
             },
             success: function (data) {
                 console.log(data["msg"])
+                localStorage.setItem("user", JSON.stringify(data["msg"]))
+                window.location.href = data["redirectUri"]
             },
             fail: function (data) {
                 console.log(data["msg"])
+                alert("登录验证失败")
             }
         })
     }
