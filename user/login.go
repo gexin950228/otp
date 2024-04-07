@@ -14,6 +14,7 @@ import (
 	"otp/models"
 	"otp/sendMail"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -44,14 +45,30 @@ func SendLoginVerifyCode(ctx *gin.Context) {
 }
 
 func ToLogin(ctx *gin.Context) {
-	uri := ctx.Query("uri")
-	fmt.Println(uri)
-	ctx.HTML(http.StatusOK, "user/login.html", uri)
+	fmt.Println("============================")
+	uri := ctx.Param("uri")
+	fmt.Printf("前端拿到的uri: %s\n", uri)
+	var toUri string
+	if strings.Contains(uri, "search") {
+		toUri = "http://127.0.0.1:8080/response/search/"
+	} else if strings.Contains(uri, "update") {
+		toUri = "http://127.0.0.1:8080/response/update/"
+	} else if strings.Contains(uri, "delete") {
+		toUri = "http://127.0.0.1:8080/response/delete/"
+	} else if strings.Contains(uri, "show") {
+		toUri = "http://127.0.0.1:8080/response/show/"
+	} else {
+		toUri = "http://127.0.0.1:8080/response/add/"
+	}
+	fmt.Printf("前端传给后端的RedirectUri: %s\n", toUri)
+	ctx.HTML(http.StatusOK, "user/login.html", toUri)
 }
 
 func Login(ctx *gin.Context) {
 	var userLogin models.UserLogin
+	fmt.Println(userLogin)
 	err := ctx.ShouldBind(&userLogin)
+	fmt.Printf("UserLogin: %v\n", userLogin)
 	if err != nil {
 		logSource.Log.Warn(err.Error())
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -63,27 +80,32 @@ func Login(ctx *gin.Context) {
 	// 验证登录信息
 	verifyResult := dataSource.SearchUser(userLogin.UserName, userLogin.Password, userLogin.VerifyCode)
 	if verifyResult.Code == 1 {
-		claims := middleware.Claims{}
-		claims.UserName = userLogin.UserName
-		claims.ExpiresAt = time.Now().Add(time.Hour * 24).Unix()
-		tokenString := middleware.GenerateToken(claims)
-		ctx.SetCookie("otp-token", tokenString, 3600, "/response/search", "www.otp.com", false, true)
+		fmt.Println("校验成功")
+		tokenString := middleware.GenerateToken(userLogin.UserName)
+		fmt.Printf("tokenString: %s\n", tokenString)
+		ctx.SetCookie("otp-token", tokenString, 3600, "/response/search", "", false, true)
 
 		if err != nil {
 			logrus.Error(err.Error())
 		}
 
 		//ctx.Redirect(http.StatusMovedPermanently, "/response/show/"+userLogin.UserName)
-		ctx.Writer.Header().Set("Authorization", tokenString)
-		ctx.JSON(http.StatusOK, gin.H{
-			"code": 1,
-			"msg":  tokenString,
-		})
+		ctx.Header("LoginUser", userLogin.UserName)
+		ctx.Header(userLogin.UserName+"-Authorization", "Succeed")
+		ctx.Header("token", tokenString)
+		data := map[string]string{
+			"code":           "1",
+			"Authentication": "Login Success",
+			"msg":            userLogin.RedirectUri,
+			"loginUser":      userLogin.UserName,
+		}
+		ctx.JSON(http.StatusOK, data)
 	} else {
+		fmt.Println("====================登录校验失败=================")
 		data := map[string]interface{}{
 			"code":        "2",
-			"redirectUri": userLogin.RedirectUri,
-			"msg":         "success",
+			"redirectUri": "http://127.0.0.1:8080/user/login",
+			"msg":         "fail",
 		}
 		ctx.JSON(http.StatusUnauthorized, data)
 	}

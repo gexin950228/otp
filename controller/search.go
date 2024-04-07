@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 func Show(ctx *gin.Context) {
-	Authorization := ctx.Request.Header.Get("Authorization")
-	if Authorization == "" {
-		ctx.Redirect(http.StatusMovedPermanently, "http://127.0.0.1:8080/user/to_login?uri=/response/show")
-	} else {
-		ctx.HTML(http.StatusOK, "response/show.html", nil)
+	user := strings.TrimPrefix(ctx.Param("user"), "/")
+	data := map[string]interface{}{
+		"user": user,
 	}
-
+	ctx.HTML(http.StatusOK, "response/show.html", data)
 }
 
 func Search(ctx *gin.Context) {
-	username := ctx.Param("username")
-	fmt.Println(username)
+	user := ctx.Param("user")
+	fmt.Println(user)
+	username := strings.TrimPrefix(user, "/")
+	fmt.Printf("username: %s\n", user)
 	ctx.HTML(http.StatusOK, "response/show.html", username)
 }

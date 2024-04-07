@@ -1,52 +1,51 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"otp/logSource"
-	"strings"
+	"math/rand"
 	"time"
 )
 
-type Claims struct {
-	ID       int
-	UserName string `form:"username" json:"userName" gorm:"userName"`
+var (
+	effectTime = time.Hour * 24
+	secretKey  = []byte("qazcdewrsfagqtaaptwtagqtagsrqtag")
+)
+
+type MyClaims struct {
+	Username string `json:"username"`
 	jwt.StandardClaims
 }
 
-var (
-	secret     = []byte("jwt-otp")
-	effectTime = time.Hour * 24
-)
-
-func GenerateToken(claims Claims) string {
-	claims.ExpiresAt = time.Now().Add(effectTime).Unix()
-	sign, err := jwt.NewWithClaims(jwt.SigningMethodES256, claims).SignedString(secret)
+func GenerateToken(username string) string {
+	fmt.Println(secretKey)
+	_, err := rand.Read(secretKey)
 	if err != nil {
-		logSource.Log.Error("初始化token失败")
+		fmt.Printf("生成secretKey出错， %s\n", err.Error())
 	}
-	return sign
+	fmt.Printf("Generate Token Username: %s\n", username)
+	claims := MyClaims{
+		Username: username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(effectTime).Unix(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(secretKey)
+	if err != nil {
+		fmt.Printf("Signed Error: %v\n", err)
+	}
+	return signedToken
 }
 
-func ParseToken() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		tokenString := ctx.GetHeader("user")
-		if strings.Contains(ctx.Request.RequestURI, "user") {
-			ctx.Abort()
-			return
+func ParseToken(tokenString string) (*MyClaims, error) {
+	tokenClaims, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
+	if tokenClaims != nil {
+		if claims, ok := tokenClaims.Claims.(*MyClaims); ok && tokenClaims.Valid {
+			return claims, nil
 		}
-		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-			return secret, nil
-		})
-		if err != nil {
-			logSource.Log.Error("token验证失败")
-			ctx.Redirect(http.StatusMovedPermanently, "http://127.0.0.1:8080/?uri=http://localhost:8080/user/login/")
-		}
-		_, ok := token.Claims.(*Claims)
-		if !ok {
-			logSource.Log.Panic("token校验出错")
-		}
-		ctx.Next()
 	}
+	return nil, err
 }

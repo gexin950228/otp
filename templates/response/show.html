@@ -6,9 +6,8 @@
     <title>机器列表</title>
 </head>
 <body>
-<div class="right-top">欢迎： {{.}}</div>
+<h1>用户: {{ .user }}</h1>
 <h1>机器列表</h1>
-
 </body>
 <style>
     .right-top {
@@ -17,5 +16,9 @@
         right: 0;
     }
 </style>
+<script>
+    let token = localStorage.getItem("token")
+    console.log("token: ", token)
+</script>
 </html>
 {{ end }}

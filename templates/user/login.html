@@ -7,6 +7,7 @@
     <script src="/static/js/jquery.js"></script>
 </head>
 <body>
+<p id="fromUri"> {{.}}</p>
 <form action="/user/login">
     <input type="text" placeholder="请输入用户名" name="username" id="username"> <br>
     <input type="password" placeholder="请输入密码" id="password" name="password"> <br>
@@ -25,7 +26,6 @@
             btnGetVerifyCode.disabled = false;
             btnGetVerifyCode.style.background = "aliceblue"
         }, 60000)
-        console.log(username, password, verifyCode)
         $.ajax({
             url: "/user/preLogin/",
             type: "POST",
@@ -42,6 +42,8 @@
     }
     let btnLogin = document.getElementById("login");
     btnLogin.onclick = function () {
+        let dataContainer = document.getElementById("fromUri")
+        const redirectUri = dataContainer.textContent
         let username = document.getElementById("username").value;
         let password = document.getElementById("password").value;
         let verifyCode = document.getElementById("verifyCode").value;
@@ -52,13 +54,15 @@
             data: {
                 "username": username,
                 "password": password,
-                "verifyCode": verifyCode
-
+                "verifyCode": verifyCode,
+                "redirectUri": redirectUri,
             },
-            success: function (data) {
-                console.log(data["msg"])
-                localStorage.setItem("user", JSON.stringify(data["msg"]))
-                window.location.href = data["redirectUri"]
+            success: function (data, textStatus, xhr) {
+                console.log(data["code"])
+                let token = xhr.getResponseHeader("token")
+                window.localStorage.setItem("token", token)
+                localStorage.setItem("Authentication", JSON.stringify(data["Authentication"]))
+                window.location.href = redirectUri + username
             },
             fail: function (data) {
                 console.log(data["msg"])

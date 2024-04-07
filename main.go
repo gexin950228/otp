@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+func Cors(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Next()
+}
+
 func main() {
 	engine := gin.Default()
 	engine.LoadHTMLGlob("templates/**/*")
@@ -22,5 +27,6 @@ func main() {
 	}
 	sessionStore := sessionInit.InitSession()
 	engine.Use(sessions.Sessions("opt_session", sessionStore))
+	engine.Use(Cors)
 	s.ListenAndServe()
 }
